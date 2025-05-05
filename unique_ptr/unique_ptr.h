@@ -6,6 +6,7 @@ class unique_ptr
 {
 public:
 	unique_ptr();
+	unique_ptr(unique_ptr&& other) noexcept;
 	explicit unique_ptr(T* ptr);
 	~unique_ptr();
 	unique_ptr(const unique_ptr&) = delete;
@@ -16,6 +17,7 @@ public:
 	void Swap(unique_ptr& other);
 	T& operator*() const;
 	T* operator->() const;
+	unique_ptr& operator=(unique_ptr&& other) noexcept;
 
 private:
 	T* m_ptr;
@@ -25,6 +27,13 @@ private:
 template<typename T>
 inline unique_ptr<T>::unique_ptr() : m_ptr(nullptr)
 {}
+
+template<typename T>
+inline unique_ptr<T>::unique_ptr(unique_ptr&& other) noexcept
+{
+	m_ptr = other.m_ptr;
+	other.m_ptr = nullptr;
+}
 
 template<typename T>
 inline unique_ptr<T>::unique_ptr(T* ptr) : m_ptr(ptr) 
@@ -73,4 +82,13 @@ template<typename T>
 inline T* unique_ptr<T>::operator->() const
 {
 	return m_ptr;
+}
+
+template<typename T>
+inline unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& other) noexcept
+{
+	delete m_ptr;
+	m_ptr = other.m_ptr;
+	other.m_ptr = nullptr;
+	return *this;
 }
