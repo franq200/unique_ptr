@@ -3,7 +3,7 @@
 
 TEST(uniquePtrTest, TestName) 
 {
-	unique_ptr<int> number(new int(12));
+	unique_ptr<int, decltype(std::default_delete<int>())> number(new int(12), std::default_delete<int>());
 	EXPECT_EQ(*number, 12);
 }
 
@@ -67,4 +67,18 @@ TEST(uniquePtrTest, moveTest2)
 	num = std::move(number);
 	EXPECT_EQ(*num, 11643);
 	EXPECT_EQ(number.Get(), nullptr);
+}
+
+TEST(uniquePtrTest, moveTest3)
+{
+	int* num = static_cast<int*>(malloc(sizeof(int)));
+	unique_ptr<int, decltype(&free)> number(num, &free);
+}
+
+TEST(uniquePtrTest, moveTest4)
+{
+	unique_ptr<int> number1(new int(12));
+	int* num = static_cast<int*>(malloc(sizeof(int)));
+	unique_ptr<int, decltype(&free)> number2(num, &free);
+	number1.Swap(number2);
 }
